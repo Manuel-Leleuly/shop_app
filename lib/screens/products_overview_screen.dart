@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shop_app/providers/cart_provider.dart';
 import 'package:shop_app/providers/products_provider.dart';
 import 'package:shop_app/screens/cart_screen.dart';
+import 'package:shop_app/widgets/app_drawer.dart';
 
 import '../widgets/products_grid.dart';
 import '../widgets/product_badge.dart';
@@ -23,7 +24,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final productsContainer = Provider.of<ProductsProvider>(context);
+    // final productsContainer = Provider.of<ProductsProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -66,6 +67,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
+      drawer: AppDrawer(),
       body: ProductsGrid(_showOnlyFavorites),
     );
   }

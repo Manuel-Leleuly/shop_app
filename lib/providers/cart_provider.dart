@@ -21,12 +21,18 @@ class CartProvider with ChangeNotifier {
 
   int get itemCount => _items.length;
 
-  double get totalAmount {
-    var total = 0.0;
-    _items
-        .forEach((_, cartItem) => total += cartItem.price * cartItem.quantity);
-    return total;
-  }
+  // double get totalAmount {
+  //   var total = 0.0;
+  //   _items
+  //       .forEach((_, cartItem) => total += cartItem.price * cartItem.quantity);
+  //   return total;
+  // }
+
+  double get totalAmount => _items.values.fold<double>(
+        0.0,
+        (previousValue, cartItem) =>
+            previousValue + (cartItem.price * cartItem.quantity),
+      );
 
   void addItem(
     String productId,
@@ -55,6 +61,16 @@ class CartProvider with ChangeNotifier {
         ),
       );
     }
+    notifyListeners();
+  }
+
+  void removeItem(String productId) {
+    _items.remove(productId);
+    notifyListeners();
+  }
+
+  void clear() {
+    _items = {};
     notifyListeners();
   }
 }
