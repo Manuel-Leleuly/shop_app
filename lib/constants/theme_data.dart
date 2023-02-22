@@ -8,4 +8,9 @@ final myAppThemeData = ThemeData(
     secondary: Colors.deepOrange,
   ),
   fontFamily: latoFontFamily,
+  textTheme: TextTheme(
+    titleLarge: TextStyle(
+      color: Colors.white,
+    ),
+  ),
 );
