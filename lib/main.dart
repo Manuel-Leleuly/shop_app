@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/constants/theme_data.dart';
 import 'package:shop_app/providers/cart_provider.dart';
@@ -11,7 +12,12 @@ import 'package:shop_app/screens/product_detail_screen.dart';
 import 'package:shop_app/screens/products_overview_screen.dart';
 import 'package:shop_app/screens/user_products_screen.dart';
 
-void main() => runApp(MyApp());
+// void main() => runApp(MyApp());
+
+Future main() async {
+  await dotenv.load(fileName: "../.env");
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
