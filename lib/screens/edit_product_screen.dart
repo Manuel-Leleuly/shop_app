@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/product.dart';
@@ -100,6 +101,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     _imageUrlFocusNode.removeListener(_updateImageUrl);
 
+    context.loaderOverlay.hide();
+
     super.dispose();
   }
 
@@ -117,12 +120,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final productProvider =
         Provider.of<ProductsProvider>(context, listen: false);
     final isValid = _form.currentState.validate();
     if (!isValid) return;
     _form.currentState.save();
+    context.loaderOverlay.show();
 
     final newProduct = Product(
       id: _editedProduct.id,
@@ -135,11 +139,34 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
     if (newProduct.id != null) {
       productProvider.updateProduct(newProduct.id, newProduct);
+      context.loaderOverlay.hide();
     } else {
-      productProvider.addProduct(newProduct);
+      try {
+        productProvider.addProduct(newProduct).then((_) {
+          Navigator.of(context).pop();
+        });
+      } catch (error) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              'An error occurred!',
+              style: TextStyle(color: Colors.black),
+            ),
+            content: Text('Something went wrong.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Okay'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+        context.loaderOverlay.hide();
+      }
     }
-
-    Navigator.of(context).pop();
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app/constants/theme_data.dart';
 import 'package:shop_app/providers/cart_provider.dart';
@@ -22,29 +23,31 @@ Future main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (ctx) => ProductsProvider(),
+    return GlobalLoaderOverlay(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (ctx) => ProductsProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => CartProvider(),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => OrdersProvider(),
+          ),
+        ],
+        child: MaterialApp(
+          title: 'MyShop',
+          theme: myAppThemeData,
+          home: ProductsOverviewScreen(),
+          routes: {
+            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+            CartScreen.routeName: (ctx) => CartScreen(),
+            OrdersScreen.routeName: (ctx) => OrdersScreen(),
+            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => EditProductScreen(),
+          },
         ),
-        ChangeNotifierProvider(
-          create: (ctx) => CartProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => OrdersProvider(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: myAppThemeData,
-        home: ProductsOverviewScreen(),
-        routes: {
-          ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrdersScreen.routeName: (ctx) => OrdersScreen(),
-          UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-          EditProductScreen.routeName: (ctx) => EditProductScreen(),
-        },
       ),
     );
   }

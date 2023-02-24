@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shop_app/constants/env.dart';
+import 'package:http/http.dart' as http;
 
 import 'product.dart';
 
 class ProductsProvider with ChangeNotifier {
+  final firebaseUrl = GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL;
+
   List<Product> _items = [
     Product(
       id: 'p1',
@@ -57,17 +63,31 @@ class ProductsProvider with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-      id: DateTime.now().toString(),
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-    );
-    _items.add(newProduct);
-    // _items.add(value);
-    notifyListeners();
+  Future<void> addProduct(Product product) async {
+    // final url = Uri.https(firebaseUrl, '/products.json');
+    final url = '${firebaseUrl}/products.json';
+
+    try {
+      final response = await http.post(
+        url,
+        body: json.encode(product.toJson()),
+      );
+
+      final newProduct = Product(
+        id: json.decode(response.body)['name'],
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      );
+
+      _items.add(newProduct);
+      // _items.add(value);
+      notifyListeners();
+    } catch (error) {
+      print(error);
+      throw error;
+    }
   }
 
   void updateProduct(String id, Product newProduct) {
