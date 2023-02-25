@@ -138,13 +138,16 @@ class _EditProductScreenState extends State<EditProductScreen> {
     );
 
     if (newProduct.id != null) {
-      productProvider.updateProduct(newProduct.id, newProduct);
-      context.loaderOverlay.hide();
+      productProvider
+          .updateProduct(newProduct.id, newProduct)
+          .then((_) => context.loaderOverlay.hide())
+          .then((_) => Navigator.of(context).pop());
     } else {
       try {
-        productProvider.addProduct(newProduct).then((_) {
-          Navigator.of(context).pop();
-        });
+        productProvider
+            .addProduct(newProduct)
+            .then((_) => context.loaderOverlay.hide())
+            .then((_) => Navigator.of(context).pop());
       } catch (error) {
         showDialog(
           context: context,

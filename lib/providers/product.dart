@@ -22,11 +22,18 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJsonAdd() => {
         'title': title,
         'description': description,
         'price': price,
         'imageUrl': imageUrl,
         'isFavorite': isFavorite,
+      };
+
+  Map<String, dynamic> toJsonUpdate() => {
+        'title': title,
+        'description': description,
+        'price': price,
+        'imageUrl': imageUrl,
       };
 }
