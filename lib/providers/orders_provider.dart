@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:shop_app/constants/env.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop_app/utils/utils.dart';
 
 import 'cart_provider.dart';
 
@@ -14,6 +19,12 @@ class OrderItem {
     @required this.products,
     @required this.dateTime,
   });
+
+  Map<String, dynamic> toJsonAdd() => {
+        'amount': amount,
+        'dateTime': dateTime.toIso8601String(),
+        'products': products.map((prod) => prod.toJson()).toList(),
+      };
 }
 
 class OrdersProvider with ChangeNotifier {
@@ -21,17 +32,48 @@ class OrdersProvider with ChangeNotifier {
 
   List<OrderItem> get orders => [..._orders];
 
-  void addOrder(
-    List<CartItem> cartProducts,
-    double total,
-  ) {
+  final _firebaseUrl = GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL;
+
+  Future<void> fetchAndSetOrders() async {
+    final url = '${_firebaseUrl}/orders.json';
+    final response = await http.get(url);
+
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData == null) return;
+
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(convertOrderResponseToOrderItem(orderId, orderData));
+    });
+
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    final url = '${_firebaseUrl}/orders.json';
+    final timestamp = DateTime.now();
+    final selectedOrderItem = OrderItem(
+      id: DateTime.now().toString(),
+      amount: total,
+      products: cartProducts,
+      dateTime: timestamp,
+    );
+
+    final response = await http.post(
+      url,
+      body: json.encode(
+        selectedOrderItem.toJsonAdd(),
+      ),
+    );
+
     _orders.insert(
       0,
       OrderItem(
-        id: DateTime.now().toString(),
+        id: json.decode(response.body)['name'],
         amount: total,
         products: cartProducts,
-        dateTime: DateTime.now(),
+        dateTime: timestamp,
       ),
     );
     notifyListeners();

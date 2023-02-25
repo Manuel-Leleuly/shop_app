@@ -7,7 +7,7 @@ final myAppThemeData = ThemeData(
   ).copyWith(
     secondary: Colors.deepOrange,
   ),
-  fontFamily: latoFontFamily,
+  fontFamily: FontFamily.latoFontFamily,
   textTheme: TextTheme(
     titleLarge: TextStyle(
       color: Colors.white,

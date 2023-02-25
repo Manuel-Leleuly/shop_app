@@ -1,3 +1,7 @@
 // font family
-const antonFontFamily = 'anton';
-const latoFontFamily = 'lato';
+class FontFamily {
+  FontFamily._();
+
+  static const antonFontFamily = 'anton';
+  static const latoFontFamily = 'lato';
+}

@@ -12,6 +12,13 @@ class CartItem {
     @required this.quantity,
     @required this.price,
   });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'quantity': quantity,
+        'price': price,
+      };
 }
 
 class CartProvider with ChangeNotifier {
