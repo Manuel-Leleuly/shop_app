@@ -4,12 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:shop_app/constants/env.dart';
 import 'package:http/http.dart' as http;
 
+import '../utils/utils.dart';
+
 class Product with ChangeNotifier {
   final String id;
   final String title;
   final String description;
   final double price;
   final String imageUrl;
+  final String creatorId;
   bool isFavorite;
 
   Product({
@@ -18,6 +21,7 @@ class Product with ChangeNotifier {
     @required this.description,
     @required this.price,
     @required this.imageUrl,
+    this.creatorId,
     this.isFavorite = false,
   });
 
@@ -26,19 +30,20 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleFavoriteStatus() async {
+  Future<void> toggleFavoriteStatus(String token, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
 
-    final url = '${GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL}/products/${id}.json';
+    final url = generateDatabaseUrl(
+      path: '/userFavorites/${userId}/${id}.json',
+      authToken: token,
+    );
 
     try {
-      final response = await http.patch(
+      final response = await http.put(
         url,
-        body: json.encode({
-          'isFavorite': isFavorite,
-        }),
+        body: json.encode(isFavorite),
       );
 
       if (response.statusCode >= 400) {
@@ -49,12 +54,12 @@ class Product with ChangeNotifier {
     }
   }
 
-  Map<String, dynamic> toJsonAdd() => {
+  Map<String, dynamic> toJsonAdd(String creatorId) => {
         'title': title,
         'description': description,
         'price': price,
         'imageUrl': imageUrl,
-        'isFavorite': isFavorite,
+        'creatorId': creatorId,
       };
 
   Map<String, dynamic> toJsonUpdate() => {
@@ -65,8 +70,9 @@ class Product with ChangeNotifier {
       };
 
   factory Product.fromJson({
-    String productId,
-    Map<String, dynamic> productData,
+    @required String productId,
+    @required Map<String, dynamic> productData,
+    @required bool isFavorite,
   }) =>
       Product(
         id: productId,
@@ -74,5 +80,6 @@ class Product with ChangeNotifier {
         description: productData['description'],
         price: productData['price'],
         imageUrl: productData['imageUrl'],
+        isFavorite: isFavorite,
       );
 }

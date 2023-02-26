@@ -13,9 +13,8 @@ import 'package:shop_app/screens/edit_product_screen.dart';
 import 'package:shop_app/screens/orders_screen.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 import 'package:shop_app/screens/products_overview_screen.dart';
+import 'package:shop_app/screens/splash_screen.dart';
 import 'package:shop_app/screens/user_products_screen.dart';
-
-// void main() => runApp(MyApp());
 
 Future main() async {
   await dotenv.load(fileName: "../.env");
@@ -28,28 +27,53 @@ class MyApp extends StatelessWidget {
     return GlobalLoaderOverlay(
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (ctx) => AuthProvider()),
           ChangeNotifierProvider(
-            create: (ctx) => ProductsProvider(),
+            create: (ctx) => AuthProvider(),
+          ),
+          ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+            create: (_) => ProductsProvider(),
+            update: (_, auth, previousProducts) => previousProducts
+              ..update(
+                authToken: auth.token,
+                items: previousProducts == null ? [] : previousProducts.items,
+                userId: auth.userId,
+              ),
           ),
           ChangeNotifierProvider(
             create: (ctx) => CartProvider(),
           ),
-          ChangeNotifierProvider(
-            create: (ctx) => OrdersProvider(),
+          ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
+            create: (_) => OrdersProvider(),
+            update: (_, auth, previousOrders) => previousOrders
+              ..update(
+                authToken: auth.token,
+                orders: previousOrders == null ? [] : previousOrders.orders,
+                userId: auth.userId,
+              ),
           ),
         ],
-        child: MaterialApp(
-          title: 'MyShop',
-          theme: myAppThemeData,
-          home: AuthScreen(),
-          routes: {
-            ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
-            CartScreen.routeName: (ctx) => CartScreen(),
-            OrdersScreen.routeName: (ctx) => OrdersScreen(),
-            UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
-            EditProductScreen.routeName: (ctx) => EditProductScreen(),
-          },
+        child: Consumer<AuthProvider>(
+          builder: (ctx, auth, _) => MaterialApp(
+            title: 'MyShop',
+            theme: myAppThemeData,
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
+            routes: {
+              ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
+              CartScreen.routeName: (ctx) => CartScreen(),
+              OrdersScreen.routeName: (ctx) => OrdersScreen(),
+              UserProductsScreen.routeName: (ctx) => UserProductsScreen(),
+              EditProductScreen.routeName: (ctx) => EditProductScreen(),
+            },
+          ),
         ),
       ),
     );

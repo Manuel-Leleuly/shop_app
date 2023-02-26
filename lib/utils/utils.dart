@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:shop_app/constants/env.dart';
 import 'package:shop_app/providers/product.dart';
 
 import '../providers/cart_provider.dart';
@@ -31,4 +33,27 @@ OrderItem convertOrderResponseToOrderItem(
             ))
         .toList(),
   );
+}
+
+String generateDatabaseUrl({
+  @required String path,
+  @required String authToken,
+  Map<String, dynamic> queryParams,
+}) {
+  final params = queryParams == null
+      ? {
+          'auth': authToken,
+        }
+      : {
+          ...queryParams,
+          'auth': authToken,
+        };
+  return Uri.https(GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL, path, params)
+      .toString();
+}
+
+String generateAuthUrl(String path) {
+  return Uri.https(GLOBAL_ENVARS.SHOP_APP_AUTH_URL, path, {
+    'key': GLOBAL_ENVARS.SHOP_APP_API_KEY,
+  }).toString();
 }

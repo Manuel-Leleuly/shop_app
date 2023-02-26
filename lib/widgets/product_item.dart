@@ -4,6 +4,8 @@ import 'package:shop_app/providers/cart_provider.dart';
 import 'package:shop_app/providers/product.dart';
 import 'package:shop_app/screens/product_detail_screen.dart';
 
+import '../providers/auth_provider.dart';
+
 class ProductItem extends StatelessWidget {
   // final String id;
   // final String title;
@@ -15,16 +17,12 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<CartProvider>(context, listen: false);
+    final authData = Provider.of<AuthProvider>(context, listen: false);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
         child: GestureDetector(
-          // onTap: () => Navigator.of(context).push(
-          //   MaterialPageRoute(
-          //     builder: (ctx) => ProductDetailScreen(title),
-          //   ),
-          // ),
           onTap: () => Navigator.of(context).pushNamed(
             ProductDetailScreen.routeName,
             arguments: product.id,
@@ -41,7 +39,10 @@ class ProductItem extends StatelessWidget {
               icon: Icon(
                 product.isFavorite ? Icons.favorite : Icons.favorite_border,
               ),
-              onPressed: () => product.toggleFavoriteStatus(),
+              onPressed: () => product.toggleFavoriteStatus(
+                authData.token,
+                authData.userId,
+              ),
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),

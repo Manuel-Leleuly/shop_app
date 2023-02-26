@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:shop_app/constants/env.dart';
 import 'package:http/http.dart' as http;
 import 'package:shop_app/utils/utils.dart';
 
@@ -47,14 +46,26 @@ class OrderItem {
 
 class OrdersProvider with ChangeNotifier {
   List<OrderItem> _orders = [];
+  String authToken;
+  String userId;
+
+  void update({
+    @required String authToken,
+    @required List<OrderItem> orders,
+    @required String userId,
+  }) {
+    this._orders = orders;
+    this.authToken = authToken;
+    this.userId = userId;
+  }
 
   List<OrderItem> get orders => [..._orders];
 
-  final _firebaseUrl = GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL;
-
   Future<void> fetchAndSetOrders() async {
-    // final url = '${_firebaseUrl}/orders.json';
-    final url = Uri.https(_firebaseUrl, '/orders.json');
+    final url = generateDatabaseUrl(
+      path: '/orders/${userId}.json',
+      authToken: authToken,
+    );
     final response = await http.get(url);
 
     final List<OrderItem> loadedOrders = [];
@@ -73,8 +84,10 @@ class OrdersProvider with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    // final url = '${_firebaseUrl}/orders.json';
-    final url = Uri.https(_firebaseUrl, '/orders.json');
+    final url = generateDatabaseUrl(
+      path: '/orders/${userId}.json',
+      authToken: authToken,
+    );
     final timestamp = DateTime.now();
     final selectedOrderItem = OrderItem(
       id: DateTime.now().toString(),
