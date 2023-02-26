@@ -63,4 +63,16 @@ class Product with ChangeNotifier {
         'price': price,
         'imageUrl': imageUrl,
       };
+
+  factory Product.fromJson({
+    String productId,
+    Map<String, dynamic> productData,
+  }) =>
+      Product(
+        id: productId,
+        title: productData['title'],
+        description: productData['description'],
+        price: productData['price'],
+        imageUrl: productData['imageUrl'],
+      );
 }

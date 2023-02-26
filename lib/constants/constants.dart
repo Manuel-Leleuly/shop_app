@@ -2,6 +2,6 @@
 class FontFamily {
   FontFamily._();
 
-  static const antonFontFamily = 'anton';
-  static const latoFontFamily = 'lato';
+  static const anton = 'anton';
+  static const lato = 'lato';
 }

@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shop_app/constants/env.dart';
 import 'package:shop_app/model/http_exception.dart';
-import 'package:shop_app/utils/utils.dart';
 import 'package:http/http.dart' as http;
 
 import 'product.dart';
@@ -76,13 +74,14 @@ class ProductsProvider with ChangeNotifier {
       if (extractedData == null) return;
 
       extractedData.forEach((prodId, prodData) {
-        loadedProducts.add(convertProductResponseToProduct(prodId, prodData));
+        loadedProducts.add(Product.fromJson(
+          productId: prodId,
+          productData: prodData,
+        ));
       });
       _items = loadedProducts;
 
       notifyListeners();
-
-      // print(json.decode(response.body));
     } catch (error) {
       throw error;
     }

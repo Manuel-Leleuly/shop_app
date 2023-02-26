@@ -25,6 +25,24 @@ class OrderItem {
         'dateTime': dateTime.toIso8601String(),
         'products': products.map((prod) => prod.toJson()).toList(),
       };
+
+  factory OrderItem.fromJson({
+    String orderId,
+    Map<String, dynamic> orderData,
+  }) =>
+      OrderItem(
+        id: orderId,
+        amount: orderData['amount'],
+        dateTime: DateTime.parse(orderData['dateTime']),
+        products: (orderData['products'] as List<dynamic>)
+            .map((item) => CartItem(
+                  id: item['id'],
+                  price: item['price'],
+                  quantity: item['quantity'],
+                  title: item['title'],
+                ))
+            .toList(),
+      );
 }
 
 class OrdersProvider with ChangeNotifier {
@@ -35,7 +53,8 @@ class OrdersProvider with ChangeNotifier {
   final _firebaseUrl = GLOBAL_ENVARS.SHOP_APP_FIREBASE_URL;
 
   Future<void> fetchAndSetOrders() async {
-    final url = '${_firebaseUrl}/orders.json';
+    // final url = '${_firebaseUrl}/orders.json';
+    final url = Uri.https(_firebaseUrl, '/orders.json');
     final response = await http.get(url);
 
     final List<OrderItem> loadedOrders = [];
@@ -43,7 +62,10 @@ class OrdersProvider with ChangeNotifier {
     if (extractedData == null) return;
 
     extractedData.forEach((orderId, orderData) {
-      loadedOrders.add(convertOrderResponseToOrderItem(orderId, orderData));
+      loadedOrders.add(OrderItem.fromJson(
+        orderId: orderId,
+        orderData: orderData,
+      ));
     });
 
     _orders = loadedOrders.reversed.toList();
@@ -51,7 +73,8 @@ class OrdersProvider with ChangeNotifier {
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    final url = '${_firebaseUrl}/orders.json';
+    // final url = '${_firebaseUrl}/orders.json';
+    final url = Uri.https(_firebaseUrl, '/orders.json');
     final timestamp = DateTime.now();
     final selectedOrderItem = OrderItem(
       id: DateTime.now().toString(),

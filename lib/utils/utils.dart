@@ -19,15 +19,16 @@ Product convertProductResponseToProduct(
 OrderItem convertOrderResponseToOrderItem(
     String orderId, Map<String, dynamic> orderData) {
   return OrderItem(
-      id: orderId,
-      amount: orderData['amount'],
-      dateTime: DateTime.parse(orderData['dateTime']),
-      products: (orderData['products'] as List<dynamic>)
-          .map((item) => CartItem(
-                id: item['id'],
-                price: item['price'],
-                quantity: item['quantity'],
-                title: item['title'],
-              ))
-          .toList());
+    id: orderId,
+    amount: orderData['amount'],
+    dateTime: DateTime.parse(orderData['dateTime']),
+    products: (orderData['products'] as List<dynamic>)
+        .map((item) => CartItem(
+              id: item['id'],
+              price: item['price'],
+              quantity: item['quantity'],
+              title: item['title'],
+            ))
+        .toList(),
+  );
 }
